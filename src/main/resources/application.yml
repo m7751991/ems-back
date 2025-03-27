@@ -1,0 +1,26 @@
+server:
+  port: 8081
+spring:
+  datasource:
+    username: root
+    password: root
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/education
+  # 发送邮件配置
+  # 发送邮件相关配置
+  mail:
+    host: smtp.qq.com # 此处使用的是qq邮箱进行邮件发送
+    username: 1522929908@qq.com # 发送邮件的账号（也就是本人账号）
+    password: wblhvvjhlnithici # 账号秘钥（注意这不是登录你QQ邮箱的密码！该秘钥在开启SMTP服务时会给出。）
+    default-encoding: UTF-8 #编码风格
+  redis:
+    port: 6379
+    host: 127.0.0.1
+    timeout: 10s
+#整合MyBatis
+mybatis-plus:
+  mapper-locations: classpath:mybatis/mapper/*.xml
+  type-aliases-package: com.example.educationalsystembackend.pojo
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+

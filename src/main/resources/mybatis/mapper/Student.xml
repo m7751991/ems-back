@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.educationalsystembackend.mapper.StudentMapper">
+    <select id="queryStudent" resultType="Student">
+        SELECT s.id, s.name, g.`name` AS grade, s.`sex`
+        FROM student s
+        inner join grade g on s.grade = g.id
+        <where>
+            <if test="id!=null and id!=''">
+                s.id=#{id}
+            </if>
+            <if test="grade!=null and grade!=''">
+                and grade=#{grade}
+            </if>
+        </where>
+        limit #{num},#{size}
+    </select>
+
+    <select id="queryGradeStudentCount" resultType="int">
+        select count(id) from student
+        <where>
+            <if test="id!=null and id!=''">
+                id=#{id}
+            </if>
+            <if test="grade!=null and grade!=''">
+                and grade=#{grade}
+            </if>
+        </where>
+    </select>
+</mapper>

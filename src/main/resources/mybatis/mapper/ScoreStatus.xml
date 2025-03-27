@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.educationalsystembackend.mapper.ScoreStatusMapper">
+    <select id="queryScoreStatus" resultType="ScoreStatus">
+        SELECT score,
+        c.id,
+        c.name AS course,
+        c.kind,
+        c.`credit`,
+        t.name AS teacher,
+        c.usual,
+        c.`experiment`,
+        c.`exam`
+        FROM course c,
+        teacher t
+        WHERE t.`id` = c.`teacher`
+        and c.teacher like #{teacher}
+        <if test="scoreList.size()!=0">
+            and score in
+            <foreach item="item" index="index" collection="scoreList"
+                     open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+        limit #{num},#{size}
+    </select>
+
+    <select id="queryScoreStatusCount" resultType="java.lang.Integer">
+        SELECT count(*)
+        FROM course c,
+        teacher t
+        WHERE t.`id` = c.`teacher`
+        and c.teacher like #{teacher}
+        <if test="scoreList.size()!=0">
+            and score in
+            <foreach item="item" index="index" collection="scoreList"
+                     open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+    </select>
+</mapper>

@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.educationalsystembackend.mapper.TeacherAdjustCourseMapper">
+    <select id="queryTeacherAdjustCourse" resultType="AdjustCourse">
+        SELECT a.id,
+        c.id AS course,
+        c.name,
+        a.`from`,
+        a.to,
+        a.`week`,
+        a.`lesson`,
+        a.reason,
+        a.result
+        FROM adjust a,course c
+        WHERE a.course = c.`id`
+        and c.teacher=#{teacher}
+        and c.name like #{course}
+        <if test="resultList.size()!=0">
+            and result in
+            <foreach item="item" index="index" collection="resultList"
+                     open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+        limit #{num},#{size}
+    </select>
+
+    <select id="queryTeacherAdjustCourseCount" resultType="java.lang.Integer">
+        SELECT count(*)
+        FROM adjust a,course c
+        WHERE a.course = c.`id`
+        and c.teacher=#{teacher}
+        and c.name like #{course}
+        <if test="resultList.size()!=0">
+            and result in
+            <foreach item="item" index="index" collection="resultList"
+                     open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+    </select>
+</mapper>

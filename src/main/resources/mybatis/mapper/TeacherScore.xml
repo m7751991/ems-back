@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.educationalsystembackend.mapper.TeacherScoreMapper">
+    <select id="queryCourseScoreIsNULLCount" resultType="int">
+        select count(*) from course c,choice ch where ch.course=c.id
+        and c.id=#{course} and (
+        ch.usual is NULL
+        <if test="experiment!=0">
+            or ch.experiment is NULL
+        </if>
+        or ch.exam is NULL)
+    </select>
+</mapper>
