@@ -84,21 +84,42 @@ public class StudentChoiceController {
         if (Status.choiceStatus) {
             return Result.success(500, "当前并未开启选课", null);
         }
+        
+        // 获取课程信息
         int week = electiveCourseService.queryElectiveCourseWeekById(id);
         int start = electiveCourseService.queryElectiveCourseStartById(id);
         int end = electiveCourseService.queryElectiveCourseEndById(id);
         String student = JWT.token(httpServletRequest.getHeader("Authorization"));
+        
+        // 检查学生当前时段是否已有课程安排（时间冲突）
         int count = studentChoiceService.queryStudentChoiceCount(student, week, start, end);
-        if (count == 0) {
-            int number = electiveCourseService.queryElectiveCourseNumberById(id);
-            if (number - choiceService.queryChoiceNumber(id) > 0) {
-                studentChoiceService.addStudentChoice(student, id);
-                return Result.success(200, "选课成功", null);
-            } else {
-                return Result.success(300, "该课程已满", null);
-            }
+        if (count != 0) {
+            return Result.success(400, "当前时间已有课程安排，无法选课", null);
+        }
+        
+        // 检查学生已选课程学分是否超过限制
+        float currentCredits = studentChoiceService.getStudentCurrentCredits(student);
+        float courseCredit = electiveCourseService.queryElectiveCourseCredit(id);
+        if (currentCredits + courseCredit > 30) { // 假设学分上限为30
+            return Result.success(400, "选课学分超过上限，无法选课", null);
+        }
+        
+        // 检查课程容量
+        int number = electiveCourseService.queryElectiveCourseNumberById(id);
+        if (number - choiceService.queryChoiceNumber(id) <= 0) {
+            return Result.success(300, "该课程已满", null);
+        }
+        
+        // 判断课程类型，如果是选修课则需要审批
+        int kind = electiveCourseService.queryElectiveCourseKind(id);
+        if (kind == 2) { // 选修课
+            // 将选课请求加入审批列表
+            studentChoiceService.addStudentChoiceForApproval(student, id);
+            return Result.success(200, "选课申请已提交，等待审批", null);
         } else {
-            return Result.success(400, "当前时间已选有课程", null);
+            // 必修课直接选课成功
+            studentChoiceService.addStudentChoice(student, id);
+            return Result.success(200, "选课成功", null);
         }
     }
 
@@ -170,5 +191,45 @@ public class StudentChoiceController {
         Map<String, Object> map = new LinkedHashMap<>();
         map.put("scheduleList", scheduleList);
         return Result.success(200, "查询成功", map);
+    }
+
+    /**
+     * 查询待审批选课列表
+     *
+     * @param num 页面数
+     * @param size 页面大小
+     * @return Response
+     */
+    @GetMapping("/queryPendingApprovals")
+    public Result queryPendingApprovals(int num, int size) {
+        Map<String, Object> map = new LinkedHashMap<>();
+        num = size * (num - 1);
+        map.put("approvalList", studentChoiceService.queryPendingApprovals(num, size));
+        map.put("count", studentChoiceService.queryPendingApprovalsCount());
+        return Result.success(200, "查询成功", map);
+    }
+    
+    /**
+     * 审批选课申请
+     *
+     * @param student 学生ID
+     * @param course 课程ID
+     * @param approved 是否通过
+     * @param reason 拒绝原因（若不通过）
+     * @return Response
+     */
+    @GetMapping("/approveStudentChoice")
+    public Result approveStudentChoice(String student, String course, boolean approved, String reason) {
+        if (approved) {
+            // 审批通过，添加选课记录
+            studentChoiceService.addStudentChoice(student, course);
+            // 更新审批状态
+            studentChoiceService.updateApprovalStatus(student, course, true, null);
+            return Result.success(200, "已批准选课申请", null);
+        } else {
+            // 审批不通过，更新审批状态
+            studentChoiceService.updateApprovalStatus(student, course, false, reason);
+            return Result.success(200, "已拒绝选课申请", null);
+        }
     }
 }

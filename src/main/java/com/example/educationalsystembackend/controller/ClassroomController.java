@@ -50,6 +50,8 @@ public class ClassroomController {
     @PostMapping("/addClassroom")
     public Result addClassroom(@RequestBody Classroom classroom) {
         if (classroomService.queryClassroomCount(classroom.getId()) == 0) {
+            // 设置教室初始状态为空闲
+            classroom.setStatus(0);
             classroomService.addClassroom(classroom);
             return Result.success(200, "添加教室成功", null);
         } else {
@@ -142,7 +144,28 @@ public class ClassroomController {
 
     @PostMapping("/uploadClassroom")
     public Result uploadClassroom(@RequestBody List<Classroom> classroomList) {
+        // 设置教室初始状态为空闲
+        // for (Classroom classroom : classroomList) {
+        //     classroom.setStatus(0);
+        // }
         classroomService.addClassrooms(classroomList);
         return Result.success(200, "导入教室成功", null);
     }
+
+    /**
+     * 更新教室状态
+     *
+     * @param id     教室号
+     * @param status 状态（空闲/使用中）
+     * @return Response
+     */
+    @GetMapping("/updateClassroomStatus")
+    public Result updateClassroomStatus(String id, String status) {
+        if (!status.equals("空闲") && !status.equals("使用中")) {
+            return Result.success(400, "状态值无效", null);
+        }
+        classroomService.updateClassroomStatus(id, status);
+        return Result.success(200, "更新教室状态成功", null);
+    }
+
 }

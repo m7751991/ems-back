@@ -1,3 +1,11 @@
+/*
+ * @Descripttion: 
+ * @version: 
+ * @Author: zixi
+ * @Date: 2025-03-27 00:12:47
+ * @LastEditors: zixi
+ * @LastEditTime: 2025-03-28 23:53:57
+ */
 package com.example.educationalsystembackend.controller;
 
 import com.example.educationalsystembackend.result.Result;

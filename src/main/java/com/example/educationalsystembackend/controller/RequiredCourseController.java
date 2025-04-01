@@ -1,3 +1,11 @@
+/*
+ * @Descripttion: 
+ * @version: 
+ * @Author: zixi
+ * @Date: 2025-03-27 00:12:47
+ * @LastEditors: zixi
+ * @LastEditTime: 2025-03-29 00:07:15
+ */
 package com.example.educationalsystembackend.controller;
 
 import com.example.educationalsystembackend.pojo.ElectiveCourse;
@@ -10,6 +18,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
+import com.example.educationalsystembackend.util.ConflictException;
 
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -51,7 +60,9 @@ public class RequiredCourseController {
     public Result queryRequiredCourse(int num, int size) {
         num = size * (num - 1);
         List<RequiredCourse> requiredCourseList = requiredCourseService.queryAllRequiredCourse(num, size);
-        requiredCourseList.forEach(requiredCourse -> requiredCourse.setChildren(requiredCourseService.queryRequiredCourseChildren(requiredCourse.getId())));
+        requiredCourseList.forEach(requiredCourse -> requiredCourse
+                .setChildren(requiredCourseService.queryRequiredCourseChildren(requiredCourse.getId())));
+
         Map<String, Object> map = new LinkedHashMap<>();
         map.put("requiredCourseList", requiredCourseList);
         map.put("count", requiredCourseService.queryAllRequiredCourseCount());
@@ -73,7 +84,8 @@ public class RequiredCourseController {
         grade = "%" + grade + "%";
         num = size * (num - 1);
         List<RequiredCourse> requiredCourseList = requiredCourseService.queryRequiredCourse(grade, num, size);
-        requiredCourseList.forEach(requiredCourse -> requiredCourse.setChildren(requiredCourseService.queryRequiredCourseChildren(requiredCourse.getId())));
+        requiredCourseList.forEach(requiredCourse -> requiredCourse
+                .setChildren(requiredCourseService.queryRequiredCourseChildren(requiredCourse.getId())));
         id = gradeService.queryGradeIdByName(id);
         Map<String, Object> map = new LinkedHashMap<>();
         map.put("requiredCourseList", requiredCourseList);
@@ -91,9 +103,9 @@ public class RequiredCourseController {
     @GetMapping("/deleteRequiredCourseChildren")
     public Result deleteRequiredCourseChildren(String course, String grade) {
         grade = gradeService.queryGradeIdByName(grade);
-        requiredCourseService.deleteRequiredCourse(course, grade); //必修课表中删除
-        if (requiredCourseService.queryGradeCount(course) == 0) {  //此时只有一个班级上该必修课
-            electiveCourseService.deleteElectiveCourse(course); //课程表中删除
+        requiredCourseService.deleteRequiredCourse(course, grade); // 必修课表中删除
+        if (requiredCourseService.queryGradeCount(course) == 0) { // 此时只有一个班级上该必修课
+            electiveCourseService.deleteElectiveCourse(course); // 课程表中删除
         }
         return Result.success(200, "删除成功", null);
     }
@@ -120,32 +132,51 @@ public class RequiredCourseController {
     public Result addRequiredCourse(@RequestBody RequiredCourse requiredCourse) {
         if (requiredCourseService.queryRequiredCourseCountById(requiredCourse.getId()) != 0)
             return Result.success(400, "该课程号已存在", null);
-        if (requiredCourseService.queryRequiredCourseTeacherMoreDateNumber(requiredCourse) != 0)
-            return Result.success(400, "该老师当前时间已安排课程", null);
-        if (classroomService.queryClassroomMoreDateNumber(requiredCourse.getId(), requiredCourse.getFrom(), requiredCourse.getTo(), requiredCourse.getWeek(), requiredCourse.getStart(), requiredCourse.getEnd(), requiredCourse.getClassroom()) != 0)
+
+        // 检查教师在相同时间段是否已安排其他课程
+        try {
+            requiredCourseService.queryRequiredCourseTeacherMoreDateNumber(requiredCourse);
+        } catch (ConflictException e) {
+            return Result.success(400, e.getMessage(), null);
+        }
+    
+        // 检查教室在相同时间段是否已被占用
+        if (classroomService.queryClassroomMoreDateNumber(requiredCourse.getId(), requiredCourse.getFrom(),
+                requiredCourse.getTo(), requiredCourse.getWeek(), requiredCourse.getStart(), requiredCourse.getEnd(),
+                requiredCourse.getClassroom()) != 0)
             return Result.success(400, "当前教室已有课程安排", null);
-        ElectiveCourse electiveCourse = new ElectiveCourse();    //添加一条课程信息
+
+        // 检查所选班级在相同时间段是否已有其他课程安排
+        for (String grade : requiredCourse.getRequiredGradeList()) {
+            if (requiredCourseService.queryGradeTimeConflict(grade, requiredCourse.getFrom(), requiredCourse.getTo(),
+                    requiredCourse.getWeek(), requiredCourse.getStart(), requiredCourse.getEnd()) != 0) {
+                return Result.success(400, "班级 " + grade + " 在该时间段已有课程安排", null);
+            }
+        }
+
+        ElectiveCourse electiveCourse = new ElectiveCourse(); // 添加一条课程信息
         electiveCourse.setId(requiredCourse.getId());
-        electiveCourse.setName(requiredCourse.getCourse());
+        electiveCourse.setName(requiredCourse.getName());
         electiveCourse.setTeacher(requiredCourse.getTeacher());
         electiveCourse.setWeek(requiredCourse.getWeek());
         electiveCourse.setStart(requiredCourse.getStart());
         electiveCourse.setEnd(requiredCourse.getEnd());
         electiveCourse.setClassroom(requiredCourse.getClassroom());
-        electiveCourse.setFlag(true);   //表示公开
-        electiveCourse.setScore(false); //不公开成绩
-        electiveCourse.setKind(1);      //表示为必修课
+        electiveCourse.setFlag(true); // 表示公开
+        electiveCourse.setScore(false); // 不公开成绩
+        electiveCourse.setKind(1); // 表示为必修课
         electiveCourse.setNumber(requiredCourse.getNumber());
         electiveCourse.setFrom(requiredCourse.getFrom());
         electiveCourse.setTo(requiredCourse.getTo());
         electiveCourse.setCredit(requiredCourse.getCredit());
         electiveCourseService.addElectiveCourse(electiveCourse);
         electiveCourseService.updateScoreProportion(20, 10, 70, requiredCourse.getId());
-        for (String grade : requiredCourse.getRequiredGradeList()) { //为所选班级添加必修课
+
+        for (String grade : requiredCourse.getRequiredGradeList()) { // 为所选班级添加必修课
             requiredCourseService.addRequiredCourse(requiredCourse.getId(), grade);
         }
         for (String grade : requiredCourse.getRequiredGradeList()) {
-            List<String> studentList = studentService.queryStudentIdByGrade(grade); //班级中每个学生选择该课程
+            List<String> studentList = studentService.queryStudentIdByGrade(grade); // 班级中每个学生选择该课程
             for (String student : studentList) {
                 studentChoiceService.addStudentChoice(student, requiredCourse.getId());
             }
@@ -162,9 +193,16 @@ public class RequiredCourseController {
     @PostMapping("/updateRequiredCourse")
     public Result updateCourse(@RequestBody RequiredCourse requiredCourse) {
         requiredCourse.setTeacher(teacherService.queryTeacherIdByName(requiredCourse.getTeacher()));
-        if (requiredCourseService.queryRequiredCourseTeacherMoreDateNumber(requiredCourse) != 0)
-            return Result.success(400, "该老师当前时间已安排课程", null);
-        if (classroomService.queryClassroomMoreDateNumber(requiredCourse.getId(), requiredCourse.getFrom(), requiredCourse.getTo(), requiredCourse.getWeek(), requiredCourse.getStart(), requiredCourse.getEnd(), classroomService.queryClassroomIdByName(requiredCourse.getClassroom())) != 0)
+        try {
+            requiredCourseService.queryRequiredCourseTeacherMoreDateNumber(requiredCourse);
+        } catch (ConflictException e) {
+            return Result.success(400, e.getMessage(), null);
+        }
+        // if (requiredCourseService.queryRequiredCourseTeacherMoreDateNumber(requiredCourse) != 0)
+        //     return Result.success(400, "该老师当前时间已安排课程", null);
+        if (classroomService.queryClassroomMoreDateNumber(requiredCourse.getId(), requiredCourse.getFrom(),
+                requiredCourse.getTo(), requiredCourse.getWeek(), requiredCourse.getStart(), requiredCourse.getEnd(),
+                classroomService.queryClassroomIdByName(requiredCourse.getClassroom())) != 0)
             return Result.success(400, "当前教室已有课程安排", null);
         requiredCourse.setClassroom(classroomService.queryClassroomIdByName(requiredCourse.getClassroom()));
         requiredCourseService.updateRequiredCourse(requiredCourse);

@@ -55,16 +55,33 @@ public class TeacherController {
      */
     @PostMapping("/addTeacher")
     public Result addTeacher(@RequestBody Teacher teacher) {
-        if (teacherService.queryTeacherCount(teacher.getId()) == 0) {
-            teacherService.addTeacher(teacher);
-            User user = new User(teacher.getId(), "123456"); //密码默认123456
-            userService.addUser(user, 3); //教师权限标记为3
-            return Result.success(200, "添加教师成功", null);
-        } else {
-            return Result.success(400, "添加失败，当前工号已存在", null);
-        }
+        String userName = teacherService.generateTeacherId();
+        teacher.setId(userName);
+        teacher.setUserName(userName);
+        teacher.setPassword(userName);
+        System.out.println("添加教师: " + teacher);
+        teacherService.addTeacher(teacher);
+        User user = new User();
+        user.setAccount(userName);
+        user.setPassword(userName);
+        System.out.println("添加用户: " + user);
+        userService.addUser(user, 3);
+        return Result.success(200, "添加教师成功", null);
     }
 
+    /**
+     * 删除老师
+     *
+     * @param ids 老师工号
+     * @return Response
+     */
+    @GetMapping("/deleteTeachers")
+    public Result deleteTeachers(String ids) {
+        System.out.println("删除教师: " + ids);
+        teacherService.deleteTeachers(ids);
+        userService.deleteUsers(ids);
+        return Result.success(200, "删除成功", null);
+    }
     /**
      * 删除老师
      *
@@ -142,8 +159,8 @@ public class TeacherController {
     @PostMapping("/uploadTeacher")
     public Result uploadTeacher(@RequestBody List<Teacher> teacherList) {
         for (Teacher teacher : teacherList) {
-            User user = new User(teacher.getId(), teacher.getId().substring(4, 6)); //截取学号后两位作为学生登录密码
-            userService.addUser(user, 3); //教师权限标记为3
+            User user = new User(teacher.getId(), teacher.getId().substring(4, 6)); // 截取学号后两位作为学生登录密码
+            userService.addUser(user, 3); // 教师权限标记为3
             teacherService.addTeacher(teacher);
         }
         return Result.success(200, "导入成功", null);

@@ -12,8 +12,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.util.List;
-
+import java.util.Random;
+import java.util.Arrays;
 @Service
 public class StudentServiceImpl extends ServiceImpl<StudentMapper, StudentEntity> implements StudentService {
 
@@ -29,11 +31,18 @@ public class StudentServiceImpl extends ServiceImpl<StudentMapper, StudentEntity
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void addStuent(Student student) {
+        // 自动生成学号
+        String studentId = generateStudentId();
+        student.setId(studentId);
+        student.setUserName(studentId);
+        student.setPassword(studentId);
         studentMapper.addStuent(student);
         int number = gradeMapper.queryNumberByGrade(student.getGrade());
-        gradeMapper.alterNumberByGrade(student.getGrade(), number + 1); //对应班级人数+1
-        User user = new User(student.getId(), "123456"); //密码默认123456
-        userMapper.addUser(user, 2); //学生权限标记为2
+        gradeMapper.alterNumberByGrade(student.getGrade(), number + 1); // 对应班级人数+1
+        User user = new User();
+        user.setAccount(student.getUserName());
+        user.setPassword(student.getPassword());
+        userMapper.addUser(user, 2); // 学生权限标记为2
     }
 
     @Override
@@ -66,7 +75,6 @@ public class StudentServiceImpl extends ServiceImpl<StudentMapper, StudentEntity
         return studentMapper.queryGradeStudentCount(id, grade);
     }
 
-
     @Override
     public void updateStudent(Student student) {
         studentMapper.updateStudent(student);
@@ -90,5 +98,22 @@ public class StudentServiceImpl extends ServiceImpl<StudentMapper, StudentEntity
     @Override
     public List<Student> queryStudentExcelData(String grade) {
         return studentMapper.queryStudentExcelData(grade);
+    }
+
+    @Override
+    public String generateStudentId() {
+        // 获取年份前两位
+        String yearPrefix = String.valueOf(LocalDate.now().getYear()).substring(2);
+        // 生成一个6位随机数
+        Random random = new Random();
+        int randomNum = 100000 + random.nextInt(900000);
+        // 组合成学号：年份(2位) + 随机数(6位)
+        return yearPrefix + randomNum;
+    }
+
+    @Override
+    public void deleteStudents(String ids) {
+        List<String> idsToDelete = Arrays.asList(ids.split(","));
+        studentMapper.deleteStudents(idsToDelete);
     }
 }

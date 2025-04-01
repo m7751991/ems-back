@@ -1,3 +1,11 @@
+/*
+ * @Descripttion: 
+ * @version: 
+ * @Author: zixi
+ * @Date: 2025-03-27 00:12:47
+ * @LastEditors: zixi
+ * @LastEditTime: 2025-03-28 01:31:28
+ */
 package com.example.educationalsystembackend.config;
 
 import com.example.educationalsystembackend.interceptors.JWTInterceptor;
@@ -23,9 +31,11 @@ public class WebMvcConfig implements WebMvcConfigurer {
      */
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
+        System.out.println("拦截器配置");
         registry.addInterceptor(tokenInterceptor)
                 .addPathPatterns("/**")
-                .excludePathPatterns("/login", "/sendCode/**", "/resetPassword/**","/queryAllGrade");
+                .excludePathPatterns("/login", "/register", "/sendCode/**", "/resetPassword/**", 
+                        "/queryAllGrade", "/queryAllGradeIdAndName","/error");
     }
 
     /**
@@ -48,4 +58,3 @@ public class WebMvcConfig implements WebMvcConfigurer {
         return new CorsFilter(configSource);
     }
 }
-

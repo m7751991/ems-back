@@ -1,3 +1,11 @@
+/*
+ * @Descripttion: 
+ * @version: 
+ * @Author: zixi
+ * @Date: 2025-03-27 00:12:47
+ * @LastEditors: zixi
+ * @LastEditTime: 2025-03-27 23:20:37
+ */
 package com.example.educationalsystembackend.service;
 
 import com.example.educationalsystembackend.pojo.ElectiveCourse;
@@ -58,4 +66,20 @@ public interface ElectiveCourseService {
     int queryExam(String course);
 
     int queryExperiment(String course);
+    
+    /**
+     * 查询课程学分
+     *
+     * @param id 课程ID
+     * @return 学分
+     */
+    float queryElectiveCourseCredit(String id);
+    
+    /**
+     * 查询课程类型
+     *
+     * @param id 课程ID
+     * @return 课程类型 1-必修课 2-选修课 3-公共课 4-专业课
+     */
+    int queryElectiveCourseKind(String id);
 }

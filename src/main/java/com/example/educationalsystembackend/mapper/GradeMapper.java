@@ -64,19 +64,19 @@ public interface GradeMapper {
     String queryGradeByStudent(String student);
 
     //查询所有考试班级
-    @Select("SELECT g.id,g.name AS grade FROM requiredcourse r,grade g where r.`grade`=g.id AND r.`classroom` IS NOT NULL AND r.`supervisor` IS NOT NULL GROUP BY g.name")
+    @Select("SELECT  g.id,g.name AS grade FROM requiredcourse r,grade g where r.`grade`=g.id AND r.`classroom` IS NOT NULL AND r.`supervisor` IS NOT NULL GROUP BY g.id, g.name")
     List<Map<String, Object>> queryAllExamGrade();
 
     //查询监考班级
-    @Select("SELECT g.id,g.`name` AS grade FROM requiredcourse r,grade g WHERE r.`grade`=g.`id` and r.supervisor=#{supervisor} GROUP BY g.name ")
+    @Select("SELECT g.id,g.`name` AS grade FROM requiredcourse r,grade g WHERE r.`grade`=g.`id` and r.supervisor=#{supervisor} GROUP BY g.id,g.name")
     List<Map<String, Object>> querySuperviseExamGrade(String supervisor);
 
     //教师查看选择选课班级
-    @Select("SELECT g.id,g.name AS grade FROM choice ch,course c,student s,grade g WHERE c.id=ch.course AND ch.`student`=s.`id` AND c.`teacher`=#{teacher} AND s.`grade`=g.id GROUP BY g.name")
+    @Select("SELECT g.id,g.name AS grade FROM choice ch,course c,student s,grade g WHERE c.id=ch.course AND ch.`student`=s.`id` AND c.`teacher`=#{teacher} AND s.`grade`=g.id GROUP BY  g.id,g.name")
     List<Map<String, Object>> queryChoiceGradeByTeacher(String teacher);
 
     //教师通过课程查询班级
-    @Select("SELECT g.id,g.name AS grade FROM choice ch,course c,student s,grade g WHERE c.id=ch.course AND ch.`student`=s.`id` AND c.`name` like #{course} and c.`teacher`=#{teacher} AND s.`grade`=g.id GROUP BY g.name")
+    @Select("SELECT g.id,g.name AS grade FROM choice ch,course c,student s,grade g WHERE c.id=ch.course AND ch.`student`=s.`id` AND c.`name` like #{course} and c.`teacher`=#{teacher} AND s.`grade`=g.id GROUP BY g.id,g.name")
     List<Map<String, Object>> queryTeacherChoiceGradeByCourse(String course, String teacher);
 
     @Select("select grade from requiredcourse where course=#{course}")

@@ -12,7 +12,7 @@ import java.util.List;
 public interface TeacherExamMapper {
 
     //教师分页查询考试
-    @Select("SELECT c.name AS course,g.name AS grade,t.name AS supervisor,cl.name AS classroom,r.date,r.start,r.end FROM course c,requiredcourse r,teacher t,classroom cl,grade g WHERE c.id=r.`course` AND r.`supervisor`=t.`id` AND r.`classroom`=cl.id AND r.`grade`=g.id AND c.teacher=#{teacher} limit #{num},#{size}")
+    @Select("SELECT c.name ,g.name AS grade,t.name AS supervisor,cl.name AS classroom,r.date,r.start,r.end FROM course c,requiredcourse r,teacher t,classroom cl,grade g WHERE c.id=r.`course` AND r.`supervisor`=t.`id` AND r.`classroom`=cl.id AND r.`grade`=g.id AND c.teacher=#{teacher} limit #{num},#{size}")
     List<TeacherExam> queryAllTeacherExam(String teacher, int num, int size);
 
     //教师查询考试总数

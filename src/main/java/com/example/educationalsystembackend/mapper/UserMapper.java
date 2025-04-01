@@ -5,6 +5,7 @@ import com.example.educationalsystembackend.entity.UserEntity;
 import com.example.educationalsystembackend.pojo.User;
 import org.apache.ibatis.annotations.*;
 import org.springframework.stereotype.Repository;
+import java.util.List;
 
 @Mapper
 @Repository
@@ -29,4 +30,15 @@ public interface UserMapper extends BaseMapper<UserEntity> {
     //删除用户
     @Delete("delete from user where account=#{account}")
     void deleteUser(String account);
+
+    //删除多个用户
+    @Delete({
+            "<script>",
+            "DELETE FROM user WHERE account IN",
+            "<foreach item='id' collection='ids' open='(' separator=',' close=')'>",
+            "'${id}'",
+            "</foreach>",
+            "</script>"
+    })
+    void deleteUsers(@Param("ids") List<String> ids);
 }

@@ -66,7 +66,8 @@ public interface ElectiveCourseMapper {
     @Select("select count(*) from  course where name=#{name}")
     int queryCourseCountByName(String name);
 
-    @Select("select c.id,c.name as course from choice ch,course c where ch.course=c.id and ch.student=#{student} group by c.name")
+    // @Select("select c.id,c.name as course from choice ch,course c where ch.course=c.id and ch.student=#{student} group by c.name")
+    @Select("SELECT DISTINCT c.id, c.name as course FROM choice ch, course c WHERE ch.course=c.id AND ch.student=#{student}")
     List<Map<String, Object>> queryCourseByStudent(String student);
 
     @Select("select name from course where id=#{id}")
@@ -76,11 +77,11 @@ public interface ElectiveCourseMapper {
     void changeElectiveCourseStatus(String course, boolean flag);
 
     //教师教的课程
-    @Select("SELECT c.id,c.name AS course FROM teacher t,course c,choice ch WHERE ch.`course`=c.id AND c.`teacher`=t.id AND t.id=#{teacher} GROUP BY c.name")
+    @Select("SELECT c.id,c.name AS course FROM teacher t,course c,choice ch WHERE ch.`course`=c.id AND c.`teacher`=t.id AND t.id=#{teacher} GROUP BY c.id,c.name")
     List<Map<String, Object>> queryCourseByTeacher(String teacher);
 
     //教师通过班级查询课程
-    @Select("SELECT c.id,c.name AS course FROM teacher t,course c,choice ch,student s,grade g WHERE ch.`student`=s.`id` AND g.`id`=s.`grade` AND ch.`course`=c.id AND c.`teacher`=t.id AND t.id=#{teacher} AND g.`name` like #{grade} GROUP BY c.name")
+    @Select("SELECT c.id,c.name FROM teacher t,course c,choice ch,student s,grade g WHERE ch.`student`=s.`id` AND g.`id`=s.`grade` AND ch.`course`=c.id AND c.`teacher`=t.id AND t.id=#{teacher} AND g.`name` like #{grade} GROUP BY c.id,c.name")
     List<Map<String, Object>> queryCourseByTeacherAndGrade(String teacher, String grade);
 
     //教师查询选课

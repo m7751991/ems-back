@@ -144,4 +144,14 @@ public class ElectiveCourseServiceImpl implements ElectiveCourseService {
     public int queryExperiment(String course) {
         return electiveCourseMapper.queryExperiment(course);
     }
+
+    @Override
+    public float queryElectiveCourseCredit(String id) {
+        return 0;
+    }
+
+    @Override
+    public int queryElectiveCourseKind(String id) {
+        return 0;
+    }
 }

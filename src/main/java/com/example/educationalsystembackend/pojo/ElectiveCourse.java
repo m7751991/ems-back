@@ -22,7 +22,7 @@ public class ElectiveCourse {    //选修课
     private String classroom;    //教室
     private boolean flag;        //公开标志
     private boolean score;       //成绩标志
-    private int kind;            //课程类型标志
+    private int kind;            //课程类型标志 1-必修课 2-选修课 3-公共课 4-专业课
     private int number;          //人数
     private int choiceNumber;    //选课人数
     @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")

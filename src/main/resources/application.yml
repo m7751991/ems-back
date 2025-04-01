@@ -1,6 +1,12 @@
 server:
   port: 8081
 spring:
+  devtools:
+    restart:
+      enabled: true
+    livereload:
+      enabled: true
+      
   datasource:
     username: root
     password: root
@@ -23,4 +29,3 @@ mybatis-plus:
   type-aliases-package: com.example.educationalsystembackend.pojo
   configuration:
     log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
-

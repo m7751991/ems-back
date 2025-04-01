@@ -21,6 +21,7 @@ import javax.validation.constraints.NotBlank;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Arrays;
 
 @RestController
 @Transactional
@@ -61,7 +62,7 @@ public class StudentController {
      * @return Response
      */
     @PostMapping("/addStudent")
-    public Result addStudent(@Validated(value = {AddStudentGroup.class}) @RequestBody Student student) {
+    public Result addStudent(@Validated(value = { AddStudentGroup.class }) @RequestBody Student student) {
         studentService.addStuent(student);
         return Result.success(200, "添加学生成功", null);
     }
@@ -74,11 +75,31 @@ public class StudentController {
      */
     @GetMapping("/deleteStudent")
     public Result deleteStudent(@NotBlank(message = "学号不能为空") String id) {
-        userService.deleteUser(id);  //用户表中删除该学生
+        userService.deleteUser(id); // 用户表中删除该学生
         String grade = gradeService.queryGradeByStudent(id);
         int number = gradeService.queryNumberByGrade(grade);
-        gradeService.alterNumberByGrade(grade, number - 1); //对应班级人数-1
-        studentService.deleteStudent(id); //学生表中删除
+        gradeService.alterNumberByGrade(grade, number - 1); // 对应班级人数-1
+        studentService.deleteStudent(id); // 学生表中删除
+        return Result.success(200, "删除成功", null);
+    }
+
+    /**
+     * 批量删除学生
+     *
+     * @param ids 学号
+     * @return Response
+     */
+    @GetMapping("/deleteStudents")
+    public Result deleteStudents(String ids) {
+        System.out.println("删除学生: " + ids);
+        List<String> idsToDelete = Arrays.asList(ids.split(","));
+        for (String id : idsToDelete) {
+            String grade = gradeService.queryGradeByStudent(id);
+            int number = gradeService.queryNumberByGrade(grade);
+            gradeService.alterNumberByGrade(grade, number - 1); // 对应班级人数-1
+        }
+        userService.deleteUsers(ids); // 用户表中删除
+        studentService.deleteStudents(ids); // 学生表中删除
         return Result.success(200, "删除成功", null);
     }
 
@@ -104,14 +125,19 @@ public class StudentController {
      * @return Response
      */
     @PostMapping("/alterStudent")
-    public Result alterStudent(@Validated({UpdateStudentGroup.class}) @RequestBody Student student) {
-        String grade = gradeService.queryGradeByStudent(student.getId()); //查询学生所在班级
+    public Result alterStudent(@Validated({ UpdateStudentGroup.class }) @RequestBody Student student) {
+
+        String grade = gradeService.queryGradeByStudent(student.getId()); // 查询学生所在班级id
+        // 获取修改前的班级人数
         int number = gradeService.queryNumberByGrade(grade);
-        gradeService.alterNumberByGrade(grade, number - 1); //对应班级人数-1
-        grade = gradeService.queryGradeIdByName(student.getGrade());
+        // 修改前班级人数-1
+        gradeService.alterNumberByGrade(grade, number - 1);
+        // 当前要修改的班级id
+        grade = student.getGrade();
+        // 修改后班级人数+1
         number = gradeService.queryNumberByGrade(grade);
         gradeService.alterNumberByGrade(grade, number + 1);
-        student.setGrade(gradeService.queryGradeIdByName(student.getGrade()));
+        // student.setGrade(gradeService.queryGradeIdByName(grade));
         studentService.updateStudent(student);
         return Result.success(200, "修改成功", null);
     }
@@ -130,12 +156,12 @@ public class StudentController {
     @PostMapping("/uploadStudent")
     public Result uploadStudent(@RequestBody List<Student> studentList) {
         for (Student student : studentList) {
-            User user = new User(student.getId(), student.getId().substring(6, 12)); //截取学号后六位作为学生登录密码
-            userService.addUser(user, 2); //学生权限标记为2
+            User user = new User(student.getId(), student.getId().substring(6, 12)); // 截取学号后六位作为学生登录密码
+            userService.addUser(user, 2); // 学生权限标记为2
             student.setGrade(gradeService.queryGradeIdByName(student.getGrade()));
             studentService.addStuent(student);
             int number = gradeService.queryNumberByGrade(student.getGrade());
-            gradeService.alterNumberByGrade(student.getGrade(), number + 1); //对应班级人数-1
+            gradeService.alterNumberByGrade(student.getGrade(), number + 1); // 对应班级人数-1
         }
         return Result.success(200, "导入成功", null);
     }

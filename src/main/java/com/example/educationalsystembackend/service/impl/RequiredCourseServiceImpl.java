@@ -5,7 +5,9 @@ import com.example.educationalsystembackend.pojo.RequiredCourse;
 import com.example.educationalsystembackend.service.RequiredCourseService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import com.example.educationalsystembackend.util.ConflictException;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -29,7 +31,6 @@ public class RequiredCourseServiceImpl implements RequiredCourseService {
     public void deleteRequiredCourse(String course, String grade) {
         requiredCourseMapper.deleteRequiredCourse(course, grade);
     }
-
 
     @Override
     public void addRequiredCourse(String course, String grade) {
@@ -82,7 +83,15 @@ public class RequiredCourseServiceImpl implements RequiredCourseService {
     }
 
     @Override
-    public int queryRequiredCourseTeacherMoreDateNumber(RequiredCourse requiredCourse) {
-        return requiredCourseMapper.queryRequiredCourseTeacherMoreDateNumber(requiredCourse);
+    public void queryRequiredCourseTeacherMoreDateNumber(RequiredCourse requiredCourse) throws ConflictException {
+        String conflictMessage = requiredCourseMapper.checkConflicts(requiredCourse);
+        if (conflictMessage != null) {
+            throw new ConflictException(conflictMessage);
+        }
+    }
+
+    @Override
+    public int queryGradeTimeConflict(String grade, Date from, Date to, int week, int start, int end) {
+        return 0;
     }
 }

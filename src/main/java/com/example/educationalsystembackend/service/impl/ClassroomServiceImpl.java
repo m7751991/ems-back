@@ -1,3 +1,11 @@
+/*
+ * @Descripttion: 
+ * @version: 
+ * @Author: zixi
+ * @Date: 2025-03-27 00:12:47
+ * @LastEditors: zixi
+ * @LastEditTime: 2025-03-28 14:40:25
+ */
 package com.example.educationalsystembackend.service.impl;
 
 import com.example.educationalsystembackend.mapper.ClassroomMapper;
@@ -10,7 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-
+import java.util.Arrays;
 @Service
 public class ClassroomServiceImpl implements ClassroomService {
 
@@ -81,5 +89,21 @@ public class ClassroomServiceImpl implements ClassroomService {
     @Override
     public void addClassrooms(List<Classroom> classroomList) {
         classroomMapper.addClassrooms(classroomList);
+    }
+
+    @Override
+    public void updateClassroomStatus(String id, String status) {
+
+    }
+
+    @Override
+    public List<Map<String, Object>> queryClassroomByStatus(String status) {
+        return List.of();
+    }
+
+    @Override
+    public void deleteClassrooms(String ids) {
+        List<String> idsToDelete = Arrays.asList(ids.split(","));
+        classroomMapper.deleteClassrooms(idsToDelete);
     }
 }

@@ -1,3 +1,11 @@
+/*
+ * @Descripttion: 
+ * @version: 
+ * @Author: zixi
+ * @Date: 2025-03-27 00:12:47
+ * @LastEditors: zixi
+ * @LastEditTime: 2025-03-28 00:15:43
+ */
 package com.example.educationalsystembackend.service.impl;
 
 import com.example.educationalsystembackend.mapper.StudentChoiceMapper;
@@ -8,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class StudentChoiceServiceImpl implements StudentChoiceService {
@@ -65,4 +74,30 @@ public class StudentChoiceServiceImpl implements StudentChoiceService {
     public int queryStudentElectiveCourseNumber(String student) {
         return studentChoiceMapper.queryStudentElectiveCourseNumber(student);
     }
+
+    @Override
+    public float getStudentCurrentCredits(String student) {
+        return 0;
+    }
+
+    @Override
+    public void addStudentChoiceForApproval(String student, String course) {
+
+    }
+
+    @Override
+    public List<Map<String, Object>> queryPendingApprovals(int num, int size) {
+        return List.of();
+    }
+
+    @Override
+    public int queryPendingApprovalsCount() {
+        return 0;
+    }
+
+    @Override
+    public void updateApprovalStatus(String student, String course, boolean approved, String reason) {
+
+    }
+
 }

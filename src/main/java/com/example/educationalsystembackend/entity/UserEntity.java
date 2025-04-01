@@ -1,3 +1,11 @@
+/*
+ * @Descripttion: 
+ * @version: 
+ * @Author: zixi
+ * @Date: 2025-03-27 00:12:47
+ * @LastEditors: zixi
+ * @LastEditTime: 2025-03-28 02:06:26
+ */
 package com.example.educationalsystembackend.entity;
 
 import com.baomidou.mybatisplus.annotation.TableField;

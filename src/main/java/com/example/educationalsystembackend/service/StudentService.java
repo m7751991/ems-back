@@ -1,3 +1,11 @@
+/*
+ * @Descripttion: 
+ * @version: 
+ * @Author: zixi
+ * @Date: 2025-03-27 00:12:47
+ * @LastEditors: zixi
+ * @LastEditTime: 2025-03-28 14:25:19
+ */
 package com.example.educationalsystembackend.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
@@ -31,5 +39,12 @@ public interface StudentService extends IService<StudentEntity> {
     List<String> queryStudentIdByGrade(String grade);
 
     List<Student> queryStudentExcelData(String grade);
+       /**
+     * 生成唯一学号
+     * @return 自动生成的学号
+     */
+    String generateStudentId();
+
+    void deleteStudents(String ids);
 }
 

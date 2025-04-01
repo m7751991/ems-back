@@ -1,3 +1,11 @@
+/*
+ * @Descripttion: 
+ * @version: 
+ * @Author: zixi
+ * @Date: 2025-03-27 00:12:47
+ * @LastEditors: zixi
+ * @LastEditTime: 2025-03-28 14:10:03
+ */
 package com.example.educationalsystembackend.service.impl;
 
 import com.baomidou.mybatisplus.extension.conditions.query.LambdaQueryChainWrapper;
@@ -22,6 +30,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
+import java.util.Arrays;
+import java.util.List;
 
 @Service
 public class UserServiceImpl extends ServiceImpl<UserMapper, UserEntity> implements UserService {
@@ -38,15 +48,16 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserEntity> impleme
     @Override
     @Transactional(rollbackFor = Exception.class)
     public boolean alterPassword(AlterPasswordDTO alterPasswordDTO) {
-        String password= new LambdaQueryChainWrapper<>(userMapper).select(UserEntity::getPassword).eq(UserEntity::getAccount,alterPasswordDTO.getAccount()).one().getPassword();
-        UserEntity user=new UserEntity();
-        BeanUtils.copyProperties(alterPasswordDTO,user);
+        String password = new LambdaQueryChainWrapper<>(userMapper).select(UserEntity::getPassword)
+                .eq(UserEntity::getAccount, alterPasswordDTO.getAccount()).one().getPassword();
+        UserEntity user = new UserEntity();
+        BeanUtils.copyProperties(alterPasswordDTO, user);
         user.setPassword(alterPasswordDTO.getNewPassword());
-        if(StringUtils.equals(password,alterPasswordDTO.getOldPassword())) {
-            new LambdaUpdateChainWrapper<>(userMapper).eq(UserEntity::getAccount, alterPasswordDTO.getAccount()).update(user);
+        if (StringUtils.equals(password, alterPasswordDTO.getOldPassword())) {
+            new LambdaUpdateChainWrapper<>(userMapper).eq(UserEntity::getAccount, alterPasswordDTO.getAccount())
+                    .update(user);
             return true;
-        }
-        else{
+        } else {
             return false;
         }
     }
@@ -63,6 +74,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserEntity> impleme
 
     @Override
     public void addUser(User user, int access) {
+        System.out.println("请求路径: ");
+        System.out.println(user);
         userMapper.addUser(user, access);
     }
 
@@ -93,15 +106,23 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserEntity> impleme
     @Transactional
     public boolean resetPassword(ResetPasswordDTO resetPasswordDTO) {
         String realCode = redisTemplate.opsForValue().get(resetPasswordDTO.getAccount());
-        if (!StringUtils.equals(realCode,resetPasswordDTO.getCode()))
+        if (!StringUtils.equals(realCode, resetPasswordDTO.getCode()))
             return false;
         else {
             UserEntity userEntity = new UserEntity();
             BeanUtils.copyProperties(resetPasswordDTO, userEntity);
             System.out.println(userEntity);
-            new LambdaUpdateChainWrapper<>(userMapper).eq(UserEntity::getAccount,userEntity.getAccount()).update(userEntity);
+            new LambdaUpdateChainWrapper<>(userMapper).eq(UserEntity::getAccount, userEntity.getAccount())
+                    .update(userEntity);
             redisTemplate.delete(userEntity.getAccount());
             return true;
         }
+    }
+
+    @Override
+    public void deleteUsers(String ids) {
+        List<String> idsToDelete = Arrays.asList(ids.split(","));
+        System.out.println("idsToDelete: " + idsToDelete);
+        userMapper.deleteUsers(idsToDelete);
     }
 }

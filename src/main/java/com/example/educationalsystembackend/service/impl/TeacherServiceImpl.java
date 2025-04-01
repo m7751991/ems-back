@@ -10,6 +10,9 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
+import java.time.LocalDate;
+import java.util.Arrays;
 
 @Service
 public class TeacherServiceImpl extends ServiceImpl<TeacherMapper, TeacherEntity> implements TeacherService {
@@ -46,7 +49,6 @@ public class TeacherServiceImpl extends ServiceImpl<TeacherMapper, TeacherEntity
     public int queryTeacherCount(String id) {
         return teacherMapper.queryTeacherCount(id);
     }
-
 
     @Override
     public void updateTeacher(Teacher teacher) {
@@ -88,4 +90,20 @@ public class TeacherServiceImpl extends ServiceImpl<TeacherMapper, TeacherEntity
         return teacherMapper.queryTeacherExcelData();
     }
 
+    @Override
+    public String generateTeacherId() {
+        // 获取年份前两位
+        String yearPrefix = String.valueOf(LocalDate.now().getYear()).substring(2);
+        // 生成一个6位随机数
+        Random random = new Random();
+        int randomNum = 100000 + random.nextInt(900000);
+        // 组合成工号：年份(2位) + 随机数(6位)
+        return yearPrefix + randomNum + "T";
+    }
+
+    @Override
+    public void deleteTeachers(String ids) {
+        List<String> idsToDelete = Arrays.asList(ids.split(","));
+        teacherMapper.deleteTeachers(idsToDelete);
+    }
 }

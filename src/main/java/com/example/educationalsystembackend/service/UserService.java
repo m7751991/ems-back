@@ -16,10 +16,13 @@ public interface UserService extends IService<UserEntity> {
     int queryAccess(String account);
 
     void addUser(User user, int access);
-
-    void deleteUser(String account);
-
+    
     void sendCode(String account,String email);
-
+    
     boolean resetPassword(ResetPasswordDTO resetPasswordDTO);
+   
+    void deleteUser(String account);
+    
+    void deleteUsers(String ids);
+
 }

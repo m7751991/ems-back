@@ -1,3 +1,11 @@
+/*
+ * @Descripttion: 
+ * @version: 
+ * @Author: zixi
+ * @Date: 2025-03-27 00:12:47
+ * @LastEditors: zixi
+ * @LastEditTime: 2025-03-28 14:39:38
+ */
 package com.example.educationalsystembackend.mapper;
 
 import com.example.educationalsystembackend.pojo.Classroom;
@@ -21,7 +29,7 @@ public interface ClassroomMapper {
     int queryAllClassroomCount();
 
     //添加教室
-    @Insert("insert into Classroom value (#{id},#{name},#{number})")
+    @Insert("insert into Classroom value (#{id},#{name},#{number},#{status})")
     void addClassroom(Classroom classroom);
 
     //查询教室
@@ -37,7 +45,7 @@ public interface ClassroomMapper {
     void deleteClassroom(String id);
 
     //修改教室
-    @Update("update Classroom set name=#{name},number=#{number} where id=#{id}")
+    @Update("update Classroom set name=#{name},number=#{number},status=#{status} where id=#{id}")
     void updateClassroom(Classroom classroom);
 
     //查询容量大于数量的教室
@@ -60,4 +68,14 @@ public interface ClassroomMapper {
     int queryClassroomMoreDateNumber(String course, Date from, Date to, int week, int start, int end, String classroom);
 
     void addClassrooms(List<Classroom> classroomList);
+
+    @Delete({
+        "<script>",
+        "DELETE FROM classroom WHERE id IN",
+        "<foreach item='id' collection='ids' open='(' separator=',' close=')'>",
+        "'${id}'",
+        "</foreach>",
+        "</script>"
+    })
+    void deleteClassrooms(@Param("ids") List<String> ids);
 }

@@ -18,7 +18,7 @@ public class RequiredCourse {               //必修课实体类
     private List<String> requiredGradeList; //班级列表
     private String grade;                   //班级
     private String id;                      //课程号
-    private String course;                  //课程名
+    private String name;                    //课程名
     private String teacher;                 //任课老师
     private int number;                     //人数
     private int week;                       //星期

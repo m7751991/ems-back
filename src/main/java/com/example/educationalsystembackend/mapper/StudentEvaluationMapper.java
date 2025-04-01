@@ -1,3 +1,4 @@
+
 package com.example.educationalsystembackend.mapper;
 
 import com.example.educationalsystembackend.pojo.StudentEvaluation;
@@ -14,7 +15,7 @@ import java.util.List;
 public interface StudentEvaluationMapper {
 
     //学生分页查询所有评价
-    @Select("SELECT c.name as course ,t.name as teacher,ch.`evaluation`,comment FROM choice ch,course c,teacher t WHERE ch.`course`=c.id AND c.`teacher`=t.`id` AND ch.`student`=#{student}")
+    @Select("SELECT c.name,t.name as teacher,ch.`evaluation`,comment FROM choice ch,course c,teacher t WHERE ch.`course`=c.id AND c.`teacher`=t.`id` AND ch.`student`=#{student}")
     List<StudentEvaluation> queryStudentEvaluationList(String student);
 
     //学生添加评价

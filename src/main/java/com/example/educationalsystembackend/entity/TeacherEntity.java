@@ -1,3 +1,11 @@
+/*
+ * @Descripttion: 
+ * @version: 
+ * @Author: zixi
+ * @Date: 2025-03-27 00:12:47
+ * @LastEditors: zixi
+ * @LastEditTime: 2025-03-27 23:15:32
+ */
 package com.example.educationalsystembackend.entity;
 
 import com.baomidou.mybatisplus.annotation.TableField;
@@ -21,4 +29,13 @@ public class TeacherEntity {
 
     @TableField("sex")
     private String sex;
+    
+    @TableField("phone")
+    private String phone;
+    
+    @TableField("email")
+    private String email;
+    
+    @TableField("hire_date")
+    private String hireDate;
 }

@@ -36,4 +36,13 @@ public interface TeacherService extends IService<TeacherEntity> {
     List<Map<String, Object>> queryStudentChoiceTeacherByCourse(String student, String course);
 
     List<Teacher> queryTeacherExcelData();
+
+    /**
+     * 生成唯一工号
+     * 
+     * @return 自动生成的工号
+     */
+    String generateTeacherId();
+
+    void deleteTeachers(String ids);
 }

@@ -1,3 +1,11 @@
+/*
+ * @Descripttion: 
+ * @version: 
+ * @Author: zixi
+ * @Date: 2025-03-27 00:12:47
+ * @LastEditors: zixi
+ * @LastEditTime: 2025-03-28 01:09:01
+ */
 package com.example.educationalsystembackend.interceptors;
 
 import com.auth0.jwt.exceptions.AlgorithmMismatchException;
@@ -18,8 +26,10 @@ import java.util.Map;
 public class JWTInterceptor implements HandlerInterceptor {
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
+        System.out.println("请求路径: " + request.getRequestURI() + ", 方法: " + request.getMethod());
         String token;
         Map<String, Object> map = new HashMap<>();
+        System.out.println("拦截器拦截Authorization");
         token = request.getHeader("Authorization");
         try {
             DecodedJWT decodedJWT = JWT.verfiy(token);
