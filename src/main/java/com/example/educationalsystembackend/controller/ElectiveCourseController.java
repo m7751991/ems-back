@@ -6,6 +6,7 @@ import com.example.educationalsystembackend.result.Result;
 import com.example.educationalsystembackend.service.ChoiceService;
 import com.example.educationalsystembackend.service.ClassroomService;
 import com.example.educationalsystembackend.service.ElectiveCourseService;
+import com.example.educationalsystembackend.service.RequiredCourseService;
 import com.example.educationalsystembackend.service.TeacherService;
 import com.example.educationalsystembackend.util.JWT;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
+import com.example.educationalsystembackend.util.ConflictException;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.LinkedHashMap;
@@ -38,6 +40,9 @@ public class ElectiveCourseController {
 
     @Autowired
     private HttpServletRequest httpServletRequest;
+
+    @Autowired
+    private RequiredCourseService requiredCourseService;
 
     /**
      * 查询所有选修课
@@ -70,9 +75,17 @@ public class ElectiveCourseController {
     public Result addElectiveCourse(@RequestBody ElectiveCourse electiveCourse) {
         if (electiveCourseService.queryElectiveCourseCount(electiveCourse.getId()) != 0)
             return Result.success(400, "该课程号已存在", null);
-        if (electiveCourseService.queryElectiveCourseMoreDateNumber(electiveCourse) != 0)
-            return Result.success(400, "该老师当前时间已安排课程", null);
-        if (classroomService.queryClassroomMoreDateNumber(electiveCourse.getId(), electiveCourse.getFrom(), electiveCourse.getTo(), electiveCourse.getWeek(), electiveCourse.getStart(), electiveCourse.getEnd(), electiveCourse.getClassroom()) != 0)
+        try {
+            electiveCourseService.queryElectiveCourseTeacherMoreDateNumber(electiveCourse);
+        } catch (ConflictException e) {
+            return Result.success(400, e.getMessage(), null);
+        }
+        // if (electiveCourseService.queryElectiveCourseMoreDateNumber(electiveCourse)
+        // != 0)
+        // return Result.success(400, "该老师当前时间已安排课程", null);
+        if (classroomService.queryClassroomMoreDateNumber(electiveCourse.getId(), electiveCourse.getFrom(),
+                electiveCourse.getTo(), electiveCourse.getWeek(), electiveCourse.getStart(), electiveCourse.getEnd(),
+                electiveCourse.getClassroom()) != 0)
             return Result.success(400, "当前教室已有课程安排", null);
         if (electiveCourseService.queryElectiveCourseCount(electiveCourse.getId()) == 0) {
             electiveCourse.setFlag(true);
@@ -125,10 +138,18 @@ public class ElectiveCourseController {
     public Result alterElectiveCourse(@RequestBody ElectiveCourse electiveCourse) {
         electiveCourse.setTeacher(teacherService.queryTeacherIdByName(electiveCourse.getTeacher()));
         electiveCourse.setClassroom(classroomService.queryClassroomIdByName(electiveCourse.getClassroom()));
-        if (electiveCourseService.queryElectiveCourseMoreDateNumber(electiveCourse) != 0)
-            return Result.success(400, "该老师当前时间已安排课程", null);
+        try {
+            electiveCourseService.queryElectiveCourseTeacherMoreDateNumber(electiveCourse);
+        } catch (ConflictException e) {
+            return Result.success(400, e.getMessage(), null);
+        }
+        // if (electiveCourseService.queryElectiveCourseMoreDateNumber(electiveCourse)
+        // != 0)
+        // return Result.success(400, "该老师当前时间已安排课程", null);
         electiveCourseService.updateElectiveCourse(electiveCourse);
-        if (classroomService.queryClassroomMoreDateNumber(electiveCourse.getId(), electiveCourse.getFrom(), electiveCourse.getTo(), electiveCourse.getWeek(), electiveCourse.getStart(), electiveCourse.getEnd(), electiveCourse.getClassroom()) != 0)
+        if (classroomService.queryClassroomMoreDateNumber(electiveCourse.getId(), electiveCourse.getFrom(),
+                electiveCourse.getTo(), electiveCourse.getWeek(), electiveCourse.getStart(), electiveCourse.getEnd(),
+                electiveCourse.getClassroom()) != 0)
             return Result.success(400, "当前教室已有课程安排", null);
         return Result.success(200, "修改选修课成功", null);
     }

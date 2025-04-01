@@ -3,6 +3,7 @@ package com.example.educationalsystembackend.service.impl;
 import com.example.educationalsystembackend.mapper.ElectiveCourseMapper;
 import com.example.educationalsystembackend.pojo.ElectiveCourse;
 import com.example.educationalsystembackend.service.ElectiveCourseService;
+import com.example.educationalsystembackend.util.ConflictException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -153,5 +154,13 @@ public class ElectiveCourseServiceImpl implements ElectiveCourseService {
     @Override
     public int queryElectiveCourseKind(String id) {
         return 0;
+    }
+
+    @Override
+    public void queryElectiveCourseTeacherMoreDateNumber(ElectiveCourse electiveCourse) throws ConflictException {
+        String conflictMessage = electiveCourseMapper.queryElectiveCourseTeacherMoreDateNumber(electiveCourse);
+        if (conflictMessage != null) {
+            throw new ConflictException(conflictMessage);
+        }
     }
 }

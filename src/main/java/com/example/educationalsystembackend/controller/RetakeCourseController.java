@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
-
+import com.example.educationalsystembackend.util.ConflictException;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -84,9 +84,14 @@ public class RetakeCourseController {
      */
     @PostMapping("/addRetakeCourse")
     public Result addRetakeCourse(@RequestBody RetakeCourse retakeCourse) {
-        if (retakeCourseService.queryRetakeCourseMoreDateNumber(retakeCourse) != 0)
-            return Result.success(400, "该老师当前时间已安排课程", null);
-        if (classroomService.queryClassroomMoreDateNumber(retakeCourse.getId(), retakeCourse.getFrom(), retakeCourse.getTo(), retakeCourse.getWeek(), retakeCourse.getStart(), retakeCourse.getEnd(), retakeCourse.getClassroom()) != 0)
+        try {
+            retakeCourseService.queryRetakeCourseMoreDateNumber(retakeCourse);
+        } catch (ConflictException e) {
+            return Result.success(400, e.getMessage(), null);
+        }
+        if (classroomService.queryClassroomMoreDateNumber(retakeCourse.getId(), retakeCourse.getFrom(),
+                retakeCourse.getTo(), retakeCourse.getWeek(), retakeCourse.getStart(), retakeCourse.getEnd(),
+                retakeCourse.getClassroom()) != 0)
             return Result.success(400, "当前教室已有课程安排", null);
         if (retakeCourseService.queryRetakeCourseCount(retakeCourse.getId()) == 0) {
             retakeCourse.setFlag(true);
@@ -119,10 +124,15 @@ public class RetakeCourseController {
     @PostMapping("/updateRetakeCourse")
     public Result updateRetakeCourse(@RequestBody RetakeCourse retakeCourse) {
         retakeCourse.setTeacher(teacherService.queryTeacherIdByName(retakeCourse.getTeacher()));
-        if (retakeCourseService.queryRetakeCourseMoreDateNumber(retakeCourse) != 0)
-            return Result.success(400, "该老师当前时间已安排课程", null);
+        try {
+            retakeCourseService.queryRetakeCourseMoreDateNumber(retakeCourse);
+        } catch (ConflictException e) {
+            return Result.success(400, e.getMessage(), null);
+        }
         retakeCourse.setClassroom(classroomService.queryClassroomIdByName(retakeCourse.getClassroom()));
-        if (classroomService.queryClassroomMoreDateNumber(retakeCourse.getId(), retakeCourse.getFrom(), retakeCourse.getTo(), retakeCourse.getWeek(), retakeCourse.getStart(), retakeCourse.getEnd(), retakeCourse.getClassroom()) != 0)
+        if (classroomService.queryClassroomMoreDateNumber(retakeCourse.getId(), retakeCourse.getFrom(),
+                retakeCourse.getTo(), retakeCourse.getWeek(), retakeCourse.getStart(), retakeCourse.getEnd(),
+                retakeCourse.getClassroom()) != 0)
             return Result.success(400, "当前教室已有课程安排", null);
         retakeCourseService.updateRetakeCourse(retakeCourse);
         return Result.success(200, "修改课程成功", null);

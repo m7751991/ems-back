@@ -198,8 +198,6 @@ public class RequiredCourseController {
         } catch (ConflictException e) {
             return Result.success(400, e.getMessage(), null);
         }
-        // if (requiredCourseService.queryRequiredCourseTeacherMoreDateNumber(requiredCourse) != 0)
-        //     return Result.success(400, "该老师当前时间已安排课程", null);
         if (classroomService.queryClassroomMoreDateNumber(requiredCourse.getId(), requiredCourse.getFrom(),
                 requiredCourse.getTo(), requiredCourse.getWeek(), requiredCourse.getStart(), requiredCourse.getEnd(),
                 classroomService.queryClassroomIdByName(requiredCourse.getClassroom())) != 0)

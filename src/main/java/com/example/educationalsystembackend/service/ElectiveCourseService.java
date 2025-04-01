@@ -9,7 +9,7 @@
 package com.example.educationalsystembackend.service;
 
 import com.example.educationalsystembackend.pojo.ElectiveCourse;
-
+import com.example.educationalsystembackend.util.ConflictException;
 import java.util.List;
 import java.util.Map;
 
@@ -82,4 +82,6 @@ public interface ElectiveCourseService {
      * @return 课程类型 1-必修课 2-选修课 3-公共课 4-专业课
      */
     int queryElectiveCourseKind(String id);
+
+    void queryElectiveCourseTeacherMoreDateNumber(ElectiveCourse electiveCourse) throws ConflictException;
 }

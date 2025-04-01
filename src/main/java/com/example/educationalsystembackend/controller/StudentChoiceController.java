@@ -63,7 +63,7 @@ public class StudentChoiceController {
             }
         }
         int number = studentChoiceService.queryStudentElectiveCourseNumber(student);
-        if (number != 0) {
+        if (number >= 3) {
             for (StudentChoice studentChoice : studentChoiceList) {
                 studentChoice.setDisabled(false);
             }
@@ -84,32 +84,32 @@ public class StudentChoiceController {
         if (Status.choiceStatus) {
             return Result.success(500, "当前并未开启选课", null);
         }
-        
+
         // 获取课程信息
         int week = electiveCourseService.queryElectiveCourseWeekById(id);
         int start = electiveCourseService.queryElectiveCourseStartById(id);
         int end = electiveCourseService.queryElectiveCourseEndById(id);
         String student = JWT.token(httpServletRequest.getHeader("Authorization"));
-        
+
         // 检查学生当前时段是否已有课程安排（时间冲突）
         int count = studentChoiceService.queryStudentChoiceCount(student, week, start, end);
         if (count != 0) {
             return Result.success(400, "当前时间已有课程安排，无法选课", null);
         }
-        
+
         // 检查学生已选课程学分是否超过限制
         float currentCredits = studentChoiceService.getStudentCurrentCredits(student);
         float courseCredit = electiveCourseService.queryElectiveCourseCredit(id);
         if (currentCredits + courseCredit > 30) { // 假设学分上限为30
             return Result.success(400, "选课学分超过上限，无法选课", null);
         }
-        
+
         // 检查课程容量
         int number = electiveCourseService.queryElectiveCourseNumberById(id);
         if (number - choiceService.queryChoiceNumber(id) <= 0) {
             return Result.success(300, "该课程已满", null);
         }
-        
+
         // 判断课程类型，如果是选修课则需要审批
         int kind = electiveCourseService.queryElectiveCourseKind(id);
         if (kind == 2) { // 选修课
@@ -169,7 +169,7 @@ public class StudentChoiceController {
             }
         }
         int number = studentChoiceService.queryStudentElectiveCourseNumber(student);
-        if (number != 0) {
+        if (number >= 3) {
             for (StudentChoice studentChoice : studentChoiceList) {
                 studentChoice.setDisabled(false);
             }
@@ -196,7 +196,7 @@ public class StudentChoiceController {
     /**
      * 查询待审批选课列表
      *
-     * @param num 页面数
+     * @param num  页面数
      * @param size 页面大小
      * @return Response
      */
@@ -208,14 +208,14 @@ public class StudentChoiceController {
         map.put("count", studentChoiceService.queryPendingApprovalsCount());
         return Result.success(200, "查询成功", map);
     }
-    
+
     /**
      * 审批选课申请
      *
-     * @param student 学生ID
-     * @param course 课程ID
+     * @param student  学生ID
+     * @param course   课程ID
      * @param approved 是否通过
-     * @param reason 拒绝原因（若不通过）
+     * @param reason   拒绝原因（若不通过）
      * @return Response
      */
     @GetMapping("/approveStudentChoice")

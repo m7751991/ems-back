@@ -1,7 +1,7 @@
 package com.example.educationalsystembackend.service;
 
 import com.example.educationalsystembackend.pojo.RetakeCourse;
-
+import com.example.educationalsystembackend.util.ConflictException;
 import java.util.List;
 
 public interface RetakeCourseService {
@@ -24,5 +24,5 @@ public interface RetakeCourseService {
 
     void updateCourseNumber(String id, int number);
 
-    int queryRetakeCourseMoreDateNumber(RetakeCourse retakeCourse);
+    void queryRetakeCourseMoreDateNumber(RetakeCourse retakeCourse) throws ConflictException;
 }

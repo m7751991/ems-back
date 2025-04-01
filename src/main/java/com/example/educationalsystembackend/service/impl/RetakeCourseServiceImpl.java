@@ -3,6 +3,7 @@ package com.example.educationalsystembackend.service.impl;
 import com.example.educationalsystembackend.mapper.RetakeCourseMapper;
 import com.example.educationalsystembackend.pojo.RetakeCourse;
 import com.example.educationalsystembackend.service.RetakeCourseService;
+import com.example.educationalsystembackend.util.ConflictException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -60,8 +61,11 @@ public class RetakeCourseServiceImpl implements RetakeCourseService {
     }
 
     @Override
-    public int queryRetakeCourseMoreDateNumber(RetakeCourse retakeCourse) {
-        return retakeCourseMapper.queryRetakeCourseMoreDateNumber(retakeCourse);
+    public void queryRetakeCourseMoreDateNumber(RetakeCourse retakeCourse) throws ConflictException {
+        String conflictMessage = retakeCourseMapper.queryRetakeCourseMoreDateNumber(retakeCourse);
+        if (conflictMessage != null) {
+            throw new ConflictException(conflictMessage);
+        }
     }
 
 }
